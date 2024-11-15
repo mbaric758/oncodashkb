@@ -6,31 +6,8 @@ import argparse
 import pandas as pd
 from biocypher import BioCypher
 import os
-import ontoweaver
+import ontoweaver.src.ontoweaver as ontoweaver
 import oncodashkb.adapters as od
-
-
-def extract(bc, csv_filenames, manager_t, conf_filename):
-    nodes = []
-    edges = []
-
-    for csv_filename in csv_filenames:
-        # Taple input data.
-        df = pd.read_csv(csv_filename)
-
-        # Extraction mapping configuration.
-        with open(conf_filename) as fd:
-            conf = yaml.full_load(fd)
-
-        manager = manager_t(df, conf)
-        manager.run()
-
-        nodes += manager.nodes
-        edges += manager.edges
-
-        logging.info(f"Extracted {len(list(manager.nodes))} nodes and {len(list(manager.edges))} edges.")
-
-    return nodes, edges
 
 def process_directory(bc, directory, columns, conf_filename, manager_t):
 
@@ -57,6 +34,9 @@ def process_directory(bc, directory, columns, conf_filename, manager_t):
     return nodes, edges
 
 if __name__ == "__main__":
+
+    # TODO look at modification to allow adding several csv files as input.
+    # TODO add adapter for parquet, one for csv and one that automatically checks filetype.
 
     usage = f"Extract nodes and edges from Oncodash' CSV tables from OncoKB and/or CGI and prepare a knowledge graph import script."
     parser = argparse.ArgumentParser(
@@ -115,6 +95,8 @@ if __name__ == "__main__":
     nodes = []
     edges = []
 
+    data_mappings = {}
+
     if asked.open_targets:
         logging.info(f"Weave Open Targets...")
         directory_targets = asked.open_targets[0]
@@ -164,19 +146,6 @@ if __name__ == "__main__":
         edges += evidence_edges
         logging.info(f"Wove Open Targets Evidences: {len(evidence_nodes)} nodes, {len(evidence_edges)} edges.")
 
-    # FIXME: allow passing several CSV files by parser.
-    if asked.oncokb:
-        logging.info(f"Weave OncoKB...")
-        n, e = extract(bc, asked.oncokb, od.oncokb.OncoKB, "./oncodashkb/adapters/oncokb.yaml")
-        nodes += n
-        edges += e
-        logging.info(f"Wove OncoKB: {len(n)} nodes, {len(e)} edges.")
-
-    if asked.cgi:
-        logging.info(f"Weave CGI...")
-        n, e = extract(bc, asked.cgi, od.cgi.CGI, "./oncodashkb/adapters/cgi.yaml")
-        nodes += n
-        edges += e
 
     if asked.gene_ontology:
         logging.info(f"Weave Gene Ontology...")
@@ -197,25 +166,28 @@ if __name__ == "__main__":
         edges += e
         logging.info(f"Wove Gene Ontology: {len(n)} nodes, {len(e)} edges.")
 
+    # FIXME: allow passing several CSV files by parser.
+    if asked.oncokb:
+        logging.info(f"Weave OncoKB...")
+        for file_path in asked.oncokb:
+            data_mappings[file_path] =  "./oncodashkb/adapters/oncokb.yaml"
+
+    if asked.cgi:
+        logging.info(f"Weave CGI...")
+        for file_path in asked.cgi:
+            data_mappings[file_path] =  "./oncodashkb/adapters/cgi.yaml"
+
     if asked.clinical:
         logging.info(f"Weave Clinical data...")
-        # TODO filter patients, keeping the ones already seen in cancer databases?
-        n, e = extract(bc, asked.clinical, od.clinical.Clinical, "./oncodashkb/adapters/clinical.yaml")
-        nodes += n
-        edges += e
-        logging.info(f"Wove Clinical: {len(n)} nodes, {len(e)} edges.")
+        for file_path in asked.clinical:
+            data_mappings[file_path] = "./oncodashkb/adapters/clinical.yaml"
 
     # Write everything.
+    n, e = ontoweaver.extract(data_mappings)
+    nodes += n
+    edges += e
 
-    logging.info("Write nodes...")
-    bc.write_nodes(nodes)
-
-    logging.info("Write edges...")
-    bc.write_edges(edges)
-
-    import_file = bc.write_import_call()
-
-    # bc.summary()
+    import_file = ontoweaver.reconciliate_write(nodes, edges, "config/biocypher_config.yaml", "config/schema_config.yaml", separator=", ")
 
     print(import_file)
 
