@@ -34,41 +34,39 @@ def process_directory(bc, directory, columns, conf_filename, manager_t):
     return nodes, edges
 
 if __name__ == "__main__":
-
-    # TODO look at modification to allow adding several csv files as input.
     # TODO add adapter for parquet, one for csv and one that automatically checks filetype.
 
     usage = f"Extract nodes and edges from Oncodash' CSV tables from OncoKB and/or CGI and prepare a knowledge graph import script."
     parser = argparse.ArgumentParser(
         description=usage)
 
-    parser.add_argument("-o", "--oncokb", metavar="CSV", action="append",
+    parser.add_argument("-o", "--oncokb", metavar="CSV", nargs="+",
                         help="Extract from an OncoKB CSV file.")
 
-    parser.add_argument("-c", "--cgi", metavar="CSV", action="append",
+    parser.add_argument("-c", "--cgi", metavar="CSV", nargs="+",
                         help="Extract from a CGI CSV file.")
 
-    parser.add_argument("-i", "--clinical", metavar="CSV", action="append",
+    parser.add_argument("-i", "--clinical", metavar="CSV", nargs="+",
                         help="Extract from a clinical CSV file.")
 
-    parser.add_argument("-g", "--gene_ontology", metavar="CSV", action="append",
+    parser.add_argument("-g", "--gene_ontology", metavar="CSV", nargs="+",
                         help="Extract from a Gene_Ontology_Annotation GAF file.")
 
-    parser.add_argument("-n", "--gene_ontology_owl", metavar="OWL", action="append",
+    parser.add_argument("-n", "--gene_ontology_owl", metavar="OWL", nargs="+",
                         help="Download Gene_Ontology owl file.")
 
-    parser.add_argument("-G", "--gene_ontology_genes", metavar="TXT", action="append",
+    parser.add_argument("-G", "--gene_ontology_genes", metavar="TXT",
                         help="List of genes for which we integrate Gene Ontology annotations (by default genes from OncoKB).")
 
-    parser.add_argument("-e", "--open_targets_evidences", metavar="PARQUET", action="append",
+    parser.add_argument("-e", "--open_targets_evidences", metavar="PARQUET", nargs="+",
                         help="Extract parquet files from the directory evidences CHEMBL.")
 
-    parser.add_argument("-t", "--open_targets", metavar="PARQUET", action="append",
+    parser.add_argument("-t", "--open_targets", metavar="PARQUET", nargs="+",
                         help="Extract parquet files from the directory targets.")
 
-    parser.add_argument("-d", "--open_targets_drugs", metavar="PARQUET", action="append",
+    parser.add_argument("-d", "--open_targets_drugs", metavar="PARQUET", nargs="+",
                         help="Extract parquet files from the directory molecule.")
-    parser.add_argument("-p", "--open_targets_diseases", metavar="PARQUET", action="append",
+    parser.add_argument("-p", "--open_targets_diseases", metavar="PARQUET", nargs="+",
                         help="Extract parquet files from the directory diseases.")
     levels = {
         "DEBUG": logging.DEBUG,
@@ -166,7 +164,6 @@ if __name__ == "__main__":
         edges += e
         logging.info(f"Wove Gene Ontology: {len(n)} nodes, {len(e)} edges.")
 
-    # FIXME: allow passing several CSV files by parser.
     if asked.oncokb:
         logging.info(f"Weave OncoKB...")
         for file_path in asked.oncokb:
