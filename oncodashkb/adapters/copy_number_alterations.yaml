@@ -97,6 +97,7 @@ metadata:
         - name: copy_number_alterations
 
 validate: # Validation for cna labeled "external.".
+  strict: true
   columns:
     patient_id:
       dtype: str
@@ -145,6 +146,7 @@ validate: # Validation for cna labeled "external.".
             - Likely Oncogenic
             - Oncogenic
             - Unknown
+            - known
     mutationEffectDescription:
       dtype: str
       description: "Brief overview of the biological effect of the alteration with references"
@@ -171,7 +173,7 @@ validate: # Validation for cna labeled "external.".
       description: "Citations related to the biological effect separated by semicolon"
       nullable: true
       checks:
-        str_matches: ^[0-9]{7,}(;[0-9]{7,})*$
+        str_matches: ^[0-9]{7,}(,[0-9]{7,})*$
     geneSummary:
       dtype: str
       description: "Brief overview of the gene and its role in cancer"

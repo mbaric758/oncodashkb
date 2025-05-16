@@ -98,6 +98,7 @@ metadata:
 
 
 validate: # Validation for cna labeled "local.".
+  strict: true
   columns:
     patient_id:
       dtype: str

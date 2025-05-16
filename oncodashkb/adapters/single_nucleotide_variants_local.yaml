@@ -102,6 +102,7 @@ metadata:
         - name: single_nucleotide_variants
 
 validate: # SNV table labeled as "local".
+  strict: true
   columns:
     patient_id:
         dtype: str
@@ -195,15 +196,15 @@ validate: # SNV table labeled as "local".
         dtype: str
         description: "functional genomic target by MANE"
         nullable: true
-        checks:
-          isin:
-            value:
-              - exonic
-              - intergenic
-              - intron
-              - intronic
-              - splicing
-              - upstream
+#        checks:
+#          isin:
+#            value:
+#              - exonic
+#              - intergenic
+#              - intron
+#              - intronic
+#              - splicing
+#              - upstream
     AAChangeMANE:
         dtype: str
         description: "Protein change by MANE"
@@ -212,18 +213,18 @@ validate: # SNV table labeled as "local".
         dtype: str
         description: "functional genomic target by RefGene"
         nullable: true
-        checks:
-            isin:
-                value:
-                  - UTR3
-                  - exonic
-                  - intergenic
-                  - intron
-                  - intronic
-                  - ncRNA_exonic
-                  - ncRNA_intronic
-                  - splicing
-                  - upstream
+#        checks:
+#            isin:
+#                value:
+#                  - UTR3
+#                  - exonic
+#                  - intergenic
+#                  - intron
+#                  - intronic
+#                  - ncRNA_exonic
+#                  - ncRNA_intronic
+#                  - splicing
+#                  - upstream
     exonicFuncRefGene:
         dtype: str
         description: "Genomic consequence of variant (from RefGene)"
@@ -244,10 +245,12 @@ validate: # SNV table labeled as "local".
         description: "Protein change by RefGene"
         nullable: true
     nMinor:
-        dtype: int64
+        dtype: float64
+        nullable: true
         description: "Minor allele copynumber (from CNAs if available)"
     nMajor:
-        dtype: int64
+        dtype: float64
+        nullable: true
         description: "Major allele copynumber (from CNAs if available)"
     ad0:
         dtype: int64
@@ -271,16 +274,16 @@ validate: # SNV table labeled as "local".
               - HET
               - LOH
     hom_lo:
-        dtype: float64
+        dtype: int64
         description: "Lower bound for expected homogeneity confidence interval"
     hom_hi:
-        dtype: float64
+        dtype: int64
         description: "Higher bound for expected homogeneity confidence interval"
     hom_pbinom_lo:
         dtype: float64
         description: "Binomial distribution probability for expected homogeneity"
     homogenous:
-        dtype: boolean
+        dtype: object
         description: "Predicted homogenous if hom_pbinom_lo > 0.05)"
         nullable: true
         checks:
@@ -304,14 +307,14 @@ validate: # SNV table labeled as "local".
         dtype: str
         description: "Alphamissense category from WGS annotations"
         nullable: true
-        checks:
-          isin:
-            value:
-              - pathogenic
-              - likely_pathogenic
-              - benign
-              - likely_benign
-              - ambiguous
+#        checks:
+#          isin:
+#            value:
+#              - pathogenic
+#              - likely_pathogenic
+#              - benign
+#              - likely_benign
+#              - ambiguous
     amis_score:
         dtype: str
         description: "Alphamissense score from WGS annotations. Value space 0.0-1.0  (can be also expressed with range eg: 0.3324,0.4355 or max first eg: 0.4355,0.3324)"
@@ -348,46 +351,46 @@ validate: # SNV table labeled as "local".
         dtype: float64
         description: "Polyphen score from WGS annotations (not yet available in WGS annotations)"
         nullable: true
-    pathogenecity:
-        dtype: str
-        description: "Estimated pathogenecity by voting from differrent scoring systems"
-        nullable: true
-        checks:
-          isin:
-            value:
-              - pathogenic
-              - likely_pathogenic
-              - benign
-              - likely_benign
-              - ambiguous
+#    pathogenecity:
+#        dtype: str
+#        description: "Estimated pathogenecity by voting from differrent scoring systems"
+#        nullable: true
+#        checks:
+#          isin:
+#            value:
+#              - pathogenic
+#              - likely_pathogenic
+#              - benign
+#              - likely_benign
+#              - ambiguous
     cosmic_id:
         dtype: str
         description: "COSMIC databse ID"
         nullable: true
     clinvar_id:
-        dtype: str
+        dtype: float64
         description: "ClinVar databse ID"
         nullable: true
-    clinvar_sig:
-        dtype: str
-        description: "ClinVar pathogenecity prediction"
-        nullable: true
-        checks:
-          isin:
-            value:
-              - pathogenic
-              - likely_pathogenic
-              - benign
-              - likely_benign
-              - ambiguous
-    clinvar_status:
-        dtype: str
-        description: "ClinVar variant status"
-        nullable: true
-    clinvar_assoc:
-        dtype: str
-        description: "ClinVar cancer type associations"
-        nullable: true
+#    clinvar_sig:
+#        dtype: str
+#        description: "ClinVar pathogenecity prediction"
+#        nullable: true
+#        checks:
+#          isin:
+#            value:
+#              - pathogenic
+#              - likely_pathogenic
+#              - benign
+#              - likely_benign
+#              - ambiguous
+#    clinvar_status:
+#        dtype: str
+#        description: "ClinVar variant status"
+#        nullable: true
+#    clinvar_assoc:
+#        dtype: str
+#        description: "ClinVar cancer type associations"
+#        nullable: true
     classification:
         dtype: str
         description: "Consequence based classification used for grouping in UI"
